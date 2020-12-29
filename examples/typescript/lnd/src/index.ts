@@ -1,25 +1,25 @@
 import createLnrpc from '@radar/lnrpc';
 import inquirer from 'inquirer';
-import Actor from './actor';
 import { aliceLnd } from './config';
+import NodeHandler from './nodeHandler';
 import { forever } from './utils';
 
-type T = {
-  action: keyof typeof Actor.answers;
+type Action = {
+  action: keyof typeof NodeHandler.answers;
 };
 
 (async () => {
   const lnrpc = await createLnrpc(aliceLnd);
-  const actor = new Actor(lnrpc);
+  const nodeHandler = new NodeHandler(lnrpc);
   const info = await lnrpc.getInfo();
   forever(async () => {
-    const { action } = await inquirer.prompt<T>({
+    const { action } = await inquirer.prompt<Action>({
       type: 'list',
       name: 'action',
       message: `Hi ${info.alias}, what would you like to do?`,
-      choices: actor.getChoices(),
+      choices: nodeHandler.getChoices(),
     });
-    const answer = await actor.getAnswer(action);
+    const answer = await nodeHandler.getAnswer(action);
     console.log(answer);
   });
 })();

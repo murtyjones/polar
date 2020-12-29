@@ -1,9 +1,9 @@
 import { LnRpc, Peer, WalletUnlockerRpc } from '@radar/lnrpc';
 
-export default class Actor {
+export default class NodeHandler {
   constructor(private lnrpc: LnRpc & WalletUnlockerRpc) {}
 
-  getChoices = () => Object.keys(Actor.answers);
+  getChoices = () => Object.keys(NodeHandler.answers);
 
   listPeers = async () => {
     const info = await this.lnrpc.listPeers();
@@ -21,20 +21,22 @@ export default class Actor {
   };
 
   public static answers = {
-    'See number of peers': (x: number) => `You have ${x} peers`,
+    'See number of peers': (peerCount: number) => `You have ${peerCount} peers`,
     'List peers': (peers: Peer[]) =>
       `Your peers:\n\n`.concat(peers.map(e => e.address).join('\n')),
   };
 
-  getAnswer = async (question: keyof typeof Actor.answers) => {
+  getAnswer = async (question: keyof typeof NodeHandler.answers) => {
     switch (question) {
       case 'See number of peers': {
-        const result: number = await this.handlers[question]();
-        return result;
+        const seePeerCount = this.handlers[question];
+        const peerCount: number = await seePeerCount();
+        return NodeHandler.answers[question](peerCount);
       }
       case 'List peers': {
-        const result: Peer[] = await this.handlers[question]();
-        return result;
+        const listPeers = this.handlers[question];
+        const peers: Peer[] = await listPeers();
+        return NodeHandler.answers[question](peers);
       }
       default:
         throw new Error('Question not recognized');
