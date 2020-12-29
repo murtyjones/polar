@@ -1,6 +1,6 @@
 import createLnrpc from '@radar/lnrpc';
 import inquirer from 'inquirer';
-import { aliceLnd } from './config';
+import { ALICE_LND } from './config';
 import NodeHandler from './nodeHandler';
 import { forever } from './utils';
 
@@ -9,7 +9,7 @@ type Action = {
 };
 
 (async () => {
-  const lnrpc = await createLnrpc(aliceLnd);
+  const lnrpc = await createLnrpc(ALICE_LND);
   const nodeHandler = new NodeHandler(lnrpc);
   const info = await lnrpc.getInfo();
   forever(async () => {

@@ -1,5 +1,5 @@
 {
-  "name": "openChannel",
+  "name": "example-ts-lnd-app",
   "version": "1.0.0",
   "description": "An example of opening a channel between peers using Polar",
   "main": "src/index.js",
