@@ -1,45 +1,77 @@
-import { LnRpc, Peer, WalletUnlockerRpc } from '@radar/lnrpc';
+import { LnRpc, WalletUnlockerRpc } from '@radar/lnrpc';
+import inquirer from 'inquirer';
+
+enum BaseAnswers {
+  OpenChannel = 'Open a channel',
+  ListPeers = 'List peers',
+  ListPendingChannels = 'List pending channels',
+}
+
+type Base = {
+  action: BaseAnswers;
+};
+
+type OpenChannel = {
+  action: string; // pubkey
+};
 
 export default class NodeHandler {
   constructor(private lnrpc: LnRpc & WalletUnlockerRpc) {}
 
-  getChoices = () => Object.keys(NodeHandler.answers);
-
-  listPeers = async () => {
-    const info = await this.lnrpc.listPeers();
-    return info.peers;
-  };
-
-  seePeerCount = async () => {
+  whatWouldYouLikeToDo = async () => {
     const info = await this.lnrpc.getInfo();
-    return info.numPeers;
+    const { action } = await inquirer.prompt<Base>({
+      type: 'list',
+      name: 'action',
+      message: `Hi ${info.alias}, what would you like to do?`,
+      choices: Object.values(BaseAnswers),
+    });
+    let answer = await this.getAnswer(action);
+    while (typeof answer !== 'string') {
+      answer = await answer();
+    }
+    console.log(answer);
+    await this.whatWouldYouLikeToDo();
   };
 
-  handlers = {
-    'See number of peers': this.seePeerCount,
-    'List peers': this.listPeers,
-  };
-
-  public static answers = {
-    'See number of peers': (peerCount: number) => `You have ${peerCount} peers`,
-    'List peers': (peers: Peer[]) =>
-      `Your peers:\n\n`.concat(peers.map(e => e.address).join('\n')),
-  };
-
-  getAnswer = async (question: keyof typeof NodeHandler.answers) => {
+  getAnswer = async (
+    question: BaseAnswers,
+  ): Promise<string | (() => Promise<string>)> => {
     switch (question) {
-      case 'See number of peers': {
-        const seePeerCount = this.handlers[question];
-        const peerCount: number = await seePeerCount();
-        return NodeHandler.answers[question](peerCount);
+      case 'Open a channel': {
+        return this.whichPeerToOpenWith;
       }
       case 'List peers': {
-        const listPeers = this.handlers[question];
-        const peers: Peer[] = await listPeers();
-        return NodeHandler.answers[question](peers);
+        const { peers } = await this.lnrpc.listPeers();
+        return `Your peers:\n\n`.concat(peers.map(e => e.address).join('\n'));
+      }
+      case 'List pending channels': {
+        const info = await this.lnrpc.listChannels();
+        return `Pending channels:\n${JSON.stringify(info)}`;
       }
       default:
         throw new Error('Question not recognized');
     }
+  };
+
+  whichPeerToOpenWith = async () => {
+    const { peers } = await this.lnrpc.listPeers();
+    const pubkey = await inquirer.prompt<{ action: string }>({
+      type: 'list',
+      name: 'action',
+      message: 'Which peer would you like to open a channel with?',
+      choices: peers.map(e => e.pubKey),
+    });
+    const amount = await inquirer.prompt<{ action: number }>({
+      type: 'list',
+      name: 'action',
+      message: 'Which peer would you like to open a channel with?',
+      choices: peers.map(e => e.pubKey),
+    });
+    await this.lnrpc.openChannelSync({
+      nodePubkeyString: pubkey.action,
+      localFundingAmount: amount.action.toString(),
+    });
+    return 'Request sent.';
   };
 }
