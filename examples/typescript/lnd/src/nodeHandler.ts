@@ -4,7 +4,7 @@ import inquirer from 'inquirer';
 enum BaseAnswers {
   OpenChannel = 'Open a channel',
   ListPeers = 'List peers',
-  ListPendingChannels = 'List pending channels',
+  ListPendingChannels = 'List open channels',
 }
 
 type Base = {
@@ -45,7 +45,7 @@ export default class NodeHandler {
         const { peers } = await this.lnrpc.listPeers();
         return `Your peers:\n\n`.concat(peers.map(e => e.address).join('\n'));
       }
-      case 'List pending channels': {
+      case 'List open channels': {
         const info = await this.lnrpc.listChannels();
         return `Pending channels:\n${JSON.stringify(info)}`;
       }
