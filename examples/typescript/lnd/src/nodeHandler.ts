@@ -4,15 +4,12 @@ import inquirer from 'inquirer';
 enum BaseAnswers {
   OpenChannel = 'Open a channel',
   ListPeers = 'List peers',
-  ListPendingChannels = 'List open channels',
+  ListPendingChannels = 'List pending channels',
+  ListOpenChannels = 'List open channels',
 }
 
 type Base = {
   action: BaseAnswers;
-};
-
-type OpenChannel = {
-  action: string; // pubkey
 };
 
 export default class NodeHandler {
@@ -45,9 +42,13 @@ export default class NodeHandler {
         const { peers } = await this.lnrpc.listPeers();
         return `Your peers:\n\n`.concat(peers.map(e => e.address).join('\n'));
       }
+      case 'List pending channels': {
+        const info = await this.lnrpc.pendingChannels();
+        return `Pending channels:\n${JSON.stringify(info)}`;
+      }
       case 'List open channels': {
         const info = await this.lnrpc.listChannels();
-        return `Pending channels:\n${JSON.stringify(info)}`;
+        return `Open channels:\n${JSON.stringify(info)}`;
       }
       default:
         throw new Error('Question not recognized');
@@ -63,10 +64,9 @@ export default class NodeHandler {
       choices: peers.map(e => e.pubKey),
     });
     const amount = await inquirer.prompt<{ action: number }>({
-      type: 'list',
+      type: 'number',
       name: 'action',
-      message: 'Which peer would you like to open a channel with?',
-      choices: peers.map(e => e.pubKey),
+      message: 'How much would you like to open with?',
     });
     await this.lnrpc.openChannelSync({
       nodePubkeyString: pubkey.action,
