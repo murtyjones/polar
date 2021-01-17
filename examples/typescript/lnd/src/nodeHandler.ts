@@ -36,11 +36,11 @@ export default class NodeHandler {
   ): Promise<string | (() => Promise<string>)> => {
     switch (question) {
       case 'Open a channel': {
-        return this.whichPeerToOpenWith;
+        return this.specifyChannelOpeningParameters;
       }
       case 'List peers': {
         const { peers } = await this.lnrpc.listPeers();
-        return `Your peers:\n\n`.concat(peers.map(e => e.address).join('\n'));
+        return `Your peers:\n\n`.concat(peers.map(p => p.address).join('\n'));
       }
       case 'List pending channels': {
         const info = await this.lnrpc.pendingChannels();
@@ -55,22 +55,22 @@ export default class NodeHandler {
     }
   };
 
-  whichPeerToOpenWith = async () => {
+  specifyChannelOpeningParameters = async () => {
     const { peers } = await this.lnrpc.listPeers();
-    const pubkey = await inquirer.prompt<{ action: string }>({
+    const { pubKey } = await inquirer.prompt<{ pubKey: string }>({
       type: 'list',
-      name: 'action',
+      name: 'pubKey',
       message: 'Which peer would you like to open a channel with?',
       choices: peers.map(e => e.pubKey),
     });
-    const amount = await inquirer.prompt<{ action: number }>({
+    const { amount } = await inquirer.prompt<{ amount: number }>({
       type: 'number',
-      name: 'action',
+      name: 'amount',
       message: 'How much would you like to open with?',
     });
     await this.lnrpc.openChannelSync({
-      nodePubkeyString: pubkey.action,
-      localFundingAmount: amount.action.toString(),
+      nodePubkeyString: pubKey,
+      localFundingAmount: amount.toString(),
     });
     return 'Request sent.';
   };
