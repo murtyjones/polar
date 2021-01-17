@@ -1,4 +1,4 @@
-import { LnRpc, WalletUnlockerRpc } from '@radar/lnrpc';
+import { ChannelEventUpdate, LnRpc, WalletUnlockerRpc } from '@radar/lnrpc';
 import inquirer from 'inquirer';
 
 enum BaseAnswers {
@@ -13,7 +13,13 @@ type Base = {
 };
 
 export default class NodeHandler {
-  constructor(private lnrpc: LnRpc & WalletUnlockerRpc) {}
+  constructor(private lnrpc: LnRpc & WalletUnlockerRpc) {
+    const stream = lnrpc.subscribeChannelEvents();
+    stream.on('data', (d: ChannelEventUpdate) => {
+      console.log('stream data');
+      console.log(d);
+    });
+  }
 
   whatWouldYouLikeToDo = async () => {
     const info = await this.lnrpc.getInfo();
@@ -72,6 +78,6 @@ export default class NodeHandler {
       nodePubkeyString: pubKey,
       localFundingAmount: amount.toString(),
     });
-    return 'Request sent.';
+    return 'Success!';
   };
 }
