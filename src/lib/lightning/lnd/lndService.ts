@@ -170,6 +170,14 @@ class LndService implements LightningService {
     );
   }
 
+  async listenForGraphChanges(node: LightningNode) {
+    const stream = await proxy.subscribeChannelEvents(this.cast(node));
+    stream.on('data', data => {
+      console.log('DATA UPDATE');
+      console.log(data);
+    });
+  }
+
   private cast(node: LightningNode): LndNode {
     if (node.implementation !== 'LND')
       throw new Error(`LndService cannot be used for '${node.implementation}' nodes`);

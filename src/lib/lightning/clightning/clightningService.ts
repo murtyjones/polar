@@ -193,6 +193,10 @@ class CLightningService implements LightningService {
     );
   }
 
+  async listenForGraphChanges(node: LightningNode) {
+    throw new Error('not impl');
+  }
+
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();
   }

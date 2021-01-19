@@ -4,6 +4,7 @@ import * as PLN from 'lib/lightning/types';
 import { Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
+import { injections } from 'utils/tests';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
 
@@ -58,6 +59,7 @@ export interface LightningModel {
   >;
   getChannels: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   getAllInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
+  listenForGraphUpdates: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   connectAllPeers: Thunk<LightningModel, Network, StoreInjections, RootModel>;
   depositFunds: Thunk<LightningModel, DepositFundsPayload, StoreInjections, RootModel>;
   openChannel: Thunk<LightningModel, OpenChannelPayload, StoreInjections, RootModel>;
@@ -129,6 +131,10 @@ const lightningModel: LightningModel = {
     await actions.getInfo(node);
     await actions.getWalletBalance(node);
     await actions.getChannels(node);
+  }),
+  listenForGraphUpdates: thunk(async (actions, node) => {
+    const api = injections.lightningFactory.getService(node);
+    await api.listenForGraphChanges(node);
   }),
   connectAllPeers: thunk(async (actions, network, { injections, getState }) => {
     // fetch info for each ln node

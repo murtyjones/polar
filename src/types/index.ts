@@ -151,6 +151,7 @@ export interface LightningService {
     invoice: string,
     amount?: number,
   ) => Promise<PLN.LightningNodePayReceipt>;
+  listenForGraphChanges: (node: LightningNode) => Promise<void>;
 }
 
 export interface LightningFactoryInjection {

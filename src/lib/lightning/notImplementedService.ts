@@ -50,6 +50,9 @@ class NotImplementedService implements LightningService {
   ): Promise<PLN.LightningNodePayReceipt> {
     throw new Error(`payInvoice is not implemented for ${node.implementation} nodes`);
   }
+  listenForGraphChanges(node: LightningNode): Promise<void> {
+    throw new Error(`poll is not implemented for ${node.implementation} nodes`);
+  }
 }
 
 export default new NotImplementedService();

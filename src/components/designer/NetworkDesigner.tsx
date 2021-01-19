@@ -42,7 +42,13 @@ interface Props {
 
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const theme = useTheme();
-  const { zoomIn, zoomOut, zoomReset, ...callbacks } = useStoreActions(s => s.designer);
+  const {
+    zoomIn,
+    zoomOut,
+    zoomReset,
+    listenForGraphUpdates,
+    ...callbacks
+  } = useStoreActions(s => s.designer);
   const {
     openChannel,
     createInvoice,
@@ -60,6 +66,10 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     // save to disk when the chart is changed (debounced)
     if (debouncedChart) save();
   }, [debouncedChart, save]);
+
+  useEffect(() => {
+    listenForGraphUpdates(network);
+  }, []);
 
   if (!chart) return <Loader />;
   return (

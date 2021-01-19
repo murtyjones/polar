@@ -18,4 +18,5 @@ export default {
   createInvoice: 'create-invoice',
   payInvoice: 'pay-invoice',
   decodeInvoice: 'decode-invoice',
+  subscribeChannelEvents: 'subscribe-channel-events',
 };
