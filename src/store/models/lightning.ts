@@ -4,7 +4,6 @@ import * as PLN from 'lib/lightning/types';
 import { Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
-import { injections } from 'utils/tests';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
 
@@ -132,7 +131,7 @@ const lightningModel: LightningModel = {
     await actions.getWalletBalance(node);
     await actions.getChannels(node);
   }),
-  listenForGraphUpdates: thunk(async (actions, node) => {
+  listenForGraphUpdates: thunk(async (actions, node, { injections }) => {
     const api = injections.lightningFactory.getService(node);
     await api.listenForGraphChanges(node);
   }),
