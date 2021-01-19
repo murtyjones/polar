@@ -67,7 +67,8 @@ class LndProxyClient {
   async subscribeChannelEvents(
     node: LndNode,
   ): Promise<LND.Readable<LND.GraphTopologyUpdate>> {
-    return await this.ipc(ipcChannels.subscribeChannelEvents, { node });
+    console.log(node);
+    return await subscribeChannelEvents();
   }
 }
 

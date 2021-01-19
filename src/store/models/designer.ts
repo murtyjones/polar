@@ -38,7 +38,7 @@ export interface DesignerModel {
   removeChart: Action<DesignerModel, number>;
   redrawChart: Action<DesignerModel>;
   syncChart: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
-  listenForGraphUpdates: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
+  listenForGraphChanges: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
   updateBackendLink: Action<DesignerModel, { lnName: string; backendName: string }>;
@@ -139,12 +139,18 @@ const designerModel: DesignerModel = {
       actions.redrawChart();
     },
   ),
-  listenForGraphUpdates: thunk(
+  listenForGraphChanges: thunk(
     async (actions, network, { getState, getStoreState, getStoreActions }) => {
+      console.log('yaya');
+      console.log(
+        network.nodes.lightning.filter(
+          n => n.status === Status.Started && n.implementation === 'LND',
+        ),
+      );
       await Promise.all(
         network.nodes.lightning
           .filter(n => n.status === Status.Started && n.implementation === 'LND')
-          .map(getStoreActions().lightning.listenForGraphUpdates),
+          .map(getStoreActions().lightning.listenForGraphChanges),
       );
     },
   ),

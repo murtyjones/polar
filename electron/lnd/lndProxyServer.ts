@@ -117,6 +117,11 @@ const decodeInvoice = async (args: {
   return await rpc.decodePayReq(args.req);
 };
 
+const subscribeChannelEvents = async (args: { node: LndNode }) => {
+  const rpc = await getRpc(args.node);
+  return rpc.subscribeChannelEvents();
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
@@ -136,6 +141,7 @@ const listeners: {
   [ipcChannels.createInvoice]: createInvoice,
   [ipcChannels.payInvoice]: payInvoice,
   [ipcChannels.decodeInvoice]: decodeInvoice,
+  [ipcChannels.subscribeChannelEvents]: subscribeChannelEvents,
 };
 
 /**

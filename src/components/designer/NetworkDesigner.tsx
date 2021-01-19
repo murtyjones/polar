@@ -5,6 +5,7 @@ import { FlowChart } from '@mrblenny/react-flow-chart';
 import { Button } from 'antd';
 import { useDebounce } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
+import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
@@ -46,7 +47,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     zoomIn,
     zoomOut,
     zoomReset,
-    listenForGraphUpdates,
+    listenForGraphChanges,
     ...callbacks
   } = useStoreActions(s => s.designer);
   const {
@@ -56,6 +57,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     changeBackend,
     advancedOptions,
   } = useStoreState(s => s.modals);
+  const { nodes } = useStoreState(s => s.lightning);
 
   const { save } = useStoreActions(s => s.network);
   const chart = useStoreState(s => s.designer.activeChart);
@@ -67,9 +69,11 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     if (debouncedChart) save();
   }, [debouncedChart, save]);
 
+  const started = network.nodes.lightning.filter(e => e.status === Status.Started).length;
   useEffect(() => {
-    listenForGraphUpdates(network);
-  }, []);
+    console.log('here');
+    listenForGraphChanges(network);
+  }, [started]);
 
   if (!chart) return <Loader />;
   return (

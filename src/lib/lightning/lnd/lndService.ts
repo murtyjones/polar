@@ -172,6 +172,8 @@ class LndService implements LightningService {
 
   async listenForGraphChanges(node: LightningNode) {
     const stream = await proxy.subscribeChannelEvents(this.cast(node));
+    console.log('listening for whatever');
+    console.log(stream);
     stream.on('data', data => {
       console.log('DATA UPDATE');
       console.log(data);

@@ -58,7 +58,7 @@ export interface LightningModel {
   >;
   getChannels: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   getAllInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
-  listenForGraphUpdates: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
+  listenForGraphChanges: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   connectAllPeers: Thunk<LightningModel, Network, StoreInjections, RootModel>;
   depositFunds: Thunk<LightningModel, DepositFundsPayload, StoreInjections, RootModel>;
   openChannel: Thunk<LightningModel, OpenChannelPayload, StoreInjections, RootModel>;
@@ -131,8 +131,10 @@ const lightningModel: LightningModel = {
     await actions.getWalletBalance(node);
     await actions.getChannels(node);
   }),
-  listenForGraphUpdates: thunk(async (actions, node, { injections }) => {
+  listenForGraphChanges: thunk(async (actions, node, { injections }) => {
+    console.log('hereeeeeeeeeee');
     const api = injections.lightningFactory.getService(node);
+    console.log(api.listenForGraphChanges);
     await api.listenForGraphChanges(node);
   }),
   connectAllPeers: thunk(async (actions, network, { injections, getState }) => {
